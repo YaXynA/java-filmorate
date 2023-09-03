@@ -15,4 +15,11 @@ public class GlobalExceptionHandler {
     public String handleValidationException(ValidationException ex) {
         return ex.getMessage();
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorResponse handleNotFoundException(NotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
 }

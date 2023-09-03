@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ErrorResponse;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> updateUser(@Valid @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         log.debug("Вызван запрос PUT /users");
         if (users.containsKey(user.getId())) {
             checkUserName(user);
@@ -39,8 +40,7 @@ public class UserController {
             return ResponseEntity.ok(user);
         } else {
             log.warn("Пользователь с указанным id не найден {}", user.getId());
-            ErrorResponse errorResponse = new ErrorResponse("Пользователь с указанным id не найден");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            throw new NotFoundException("Пользователь с указанным id не найден");
         }
     }
 

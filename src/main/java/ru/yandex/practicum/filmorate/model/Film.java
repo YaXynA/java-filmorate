@@ -15,7 +15,7 @@ public class Film {
     @NotBlank
     private String name;
     @NotNull
-    @Size(max = 200)
+    @Size(min = 1, max = 200)
     private String description;
     @NotNull
     @ReleaseDate

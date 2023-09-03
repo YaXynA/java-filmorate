@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ErrorResponse;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
@@ -30,15 +31,14 @@ public class FilmController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> updateFilm(@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         log.debug("Вызван запрос PUT /films");
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return ResponseEntity.ok(film);
         } else {
             log.warn("Фильм с указанным ID не найден {}", film.getId());
-            ErrorResponse errorResponse = new ErrorResponse("Фильм с указанным id не найден");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            throw new NotFoundException("Фильм с указанным id не найден");
         }
     }
 
