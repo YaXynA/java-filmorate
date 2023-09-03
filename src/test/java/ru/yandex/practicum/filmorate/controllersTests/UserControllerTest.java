@@ -41,7 +41,7 @@ public class UserControllerTest {
         user.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk());
@@ -58,20 +58,21 @@ public class UserControllerTest {
         userToUpdate.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userToUpdate)))
                 .andExpect(status().isOk());
 
         // Обновление пользователя
         User updatedUser = new User();
+        updatedUser.setId(1);
         updatedUser.setName("Updated User");
         updatedUser.setEmail("updateduser@example.com");
         updatedUser.setLogin("updateduser");
         updatedUser.setBirthday(LocalDate.of(1995, 2, 2));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/users/1")
+                        .put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedUser)))
                 .andExpect(status().isOk());
@@ -87,7 +88,7 @@ public class UserControllerTest {
         user.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk());
@@ -108,7 +109,7 @@ public class UserControllerTest {
         userWithFutureBirthday.setBirthday(LocalDate.of(2024, 12, 12));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userWithFutureBirthday)))
                 .andExpect(status().isBadRequest());
@@ -121,7 +122,7 @@ public class UserControllerTest {
         userWithEmptyEmail.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userWithEmptyEmail)))
                 .andExpect(status().isBadRequest());
@@ -134,7 +135,7 @@ public class UserControllerTest {
         userWithInvalidEmail.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userWithInvalidEmail)))
                 .andExpect(status().isBadRequest());
@@ -147,7 +148,7 @@ public class UserControllerTest {
         userWithEmptyLogin.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userWithEmptyLogin)))
                 .andExpect(status().isBadRequest());
@@ -160,7 +161,7 @@ public class UserControllerTest {
         userWithWhitespaceLogin.setBirthday(LocalDate.of(1990, 1, 1));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users/post")
+                        .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userWithWhitespaceLogin)))
                 .andExpect(status().isBadRequest());
@@ -170,13 +171,14 @@ public class UserControllerTest {
     public void shouldReturnNotFoundForNonExistentUserUpdate() throws Exception {
         // Попытка обновить несуществующего пользователя
         User updatedUser = new User();
+        updatedUser.setId(999);
         updatedUser.setName("Updated User");
         updatedUser.setEmail("updateduser@example.com");
         updatedUser.setLogin("updateduser");
         updatedUser.setBirthday(LocalDate.of(1995, 2, 2));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/users/999")
+                        .put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedUser)))
                 .andExpect(status().isNotFound());

@@ -41,7 +41,7 @@ public class FilmControllerTest {
         validFilm.setReleaseDate(LocalDate.of(2023, 1, 1));
         validFilm.setDuration(120);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isOk());
@@ -57,7 +57,7 @@ public class FilmControllerTest {
         filmToUpdate.setReleaseDate(LocalDate.of(2022, 1, 1));
         filmToUpdate.setDuration(90);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filmToUpdate)))
                 .andExpect(status().isOk());
@@ -70,7 +70,7 @@ public class FilmControllerTest {
         updatedFilm.setReleaseDate(LocalDate.of(2023, 2, 2));
         updatedFilm.setDuration(120);
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/films/1")
+                        .put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedFilm)))
                 .andExpect(status().isOk());
@@ -85,7 +85,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2021, 1, 1));
         film.setDuration(100);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
                 .andExpect(status().isOk());
@@ -105,7 +105,7 @@ public class FilmControllerTest {
         filmWithEmptyName.setReleaseDate(LocalDate.of(2022, 1, 1));
         filmWithEmptyName.setDuration(90);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filmWithEmptyName)))
                 .andExpect(status().isBadRequest());
@@ -117,7 +117,7 @@ public class FilmControllerTest {
         filmWithLongDescription.setReleaseDate(LocalDate.of(2022, 1, 1));
         filmWithLongDescription.setDuration(90);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filmWithLongDescription)))
                 .andExpect(status().isBadRequest());
@@ -129,7 +129,7 @@ public class FilmControllerTest {
         filmWithInvalidReleaseDate.setReleaseDate(LocalDate.of(1800, 1, 1));
         filmWithInvalidReleaseDate.setDuration(90);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filmWithInvalidReleaseDate)))
                 .andExpect(status().isBadRequest());
@@ -141,7 +141,7 @@ public class FilmControllerTest {
         filmWithNegativeDuration.setReleaseDate(LocalDate.of(2022, 1, 1));
         filmWithNegativeDuration.setDuration(-5);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filmWithNegativeDuration)))
                 .andExpect(status().isBadRequest());
@@ -156,7 +156,7 @@ public class FilmControllerTest {
         validFilm.setReleaseDate(LocalDate.of(2023, 1, 1));
         validFilm.setDuration(120);
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/films/999")
+                        .put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isNotFound());
@@ -166,7 +166,7 @@ public class FilmControllerTest {
     public void shouldReturnBadRequestForEmptyRequestBody() throws Exception {
         // Попытка отправить пустой запрос
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/films/post")
+                        .post("/films")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
