@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ErrorResponse;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
+    public ResponseEntity<Object> updateUser(@Valid @RequestBody User user) {
         log.debug("Вызван запрос PUT /users");
         if (users.containsKey(user.getId())) {
             checkUserName(user);
@@ -39,8 +40,8 @@ public class UserController {
             return ResponseEntity.ok(user);
         } else {
             log.warn("Пользователь с указанным id не найден {}", user.getId());
-            String errorMessage = "Пользователь с указанным id не найден";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+            ErrorResponse errorResponse = new ErrorResponse("Пользователь с указанным id не найден");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 

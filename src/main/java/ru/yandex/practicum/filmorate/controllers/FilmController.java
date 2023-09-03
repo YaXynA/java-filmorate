@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ErrorResponse;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -28,15 +31,16 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public ResponseEntity<Object> updateFilm(@Valid @RequestBody Film film) {
         log.debug("Вызван запрос PUT /films");
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
+            return ResponseEntity.ok(film);
         } else {
             log.warn("Фильм с указанным ID не найден {}", film.getId());
-            throw new ValidationException("Фильм с указанным id не найден");
+            ErrorResponse errorResponse = new ErrorResponse("Фильм с указанным id не найден");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
-        return film;
     }
 
     @GetMapping
