@@ -1,73 +1,62 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
 
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer, User> users = new HashMap<>();
+    private int nextUserId = 1;
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        log.info("Выполнен GET/users");
-        return users;
-    }
-
-    @PostMapping(value = "/post")
-    public User createUser(@RequestBody User user) {
-        validateUser(user);
-
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        users.add(user);
-        log.info("Создан новый пользователь: {}", user);
+    @PostMapping
+    public User createUser(@Valid @RequestBody User user) {
+        log.debug("Вызван запрос POST /users");
+        checkUserName(user);
+        user.setId(generateUserId());
+        users.put(user.getId(), user);
         return user;
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
-        validateUser(updatedUser);
-        User existingUser = users.stream()
-                .filter(user -> user.getId() == id)
-                .findFirst()
-                .orElse(null);
-        if (existingUser != null) {
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setLogin(updatedUser.getLogin());
-            existingUser.setName(updatedUser.getName());
-            existingUser.setBirthday(updatedUser.getBirthday());
-            log.info("Обновлен пользователь с id {} ", id);
-            return ResponseEntity.ok(existingUser);
+    @PutMapping
+    public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
+        log.debug("Вызван запрос PUT /users");
+        if (users.containsKey(user.getId())) {
+            checkUserName(user);
+            users.put(user.getId(), user);
+            return ResponseEntity.ok(user);
         } else {
-            return ResponseEntity.notFound().build();
+            log.warn("Пользователь с указанным id не найден {}", user.getId());
+            String errorMessage = "Пользователь с указанным id не найден";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         }
     }
 
+    @GetMapping
+    public List<User> getUsers() {
+        log.debug("Вызван запрос GET /users");
+        return new ArrayList<>(users.values());
+    }
 
-    private void validateUser(User user) {
-        LocalDate birthday = user.getBirthday();
-        if (birthday.isAfter(LocalDate.now())) {
-            log.error("Дата рождения не может быть в будущем.");
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-        if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            log.error("Некорректная электронная почта.");
-            throw new ValidationException("Некорректная электронная почта.");
-        }
-        if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            log.error("Логин не может быть пустым и не должен содержать пробелы.");
-            throw new ValidationException("Логин не может быть пустым и не должен содержать пробелы.");
+    private int generateUserId() {
+        return nextUserId++;
+    }
+
+    private void checkUserName(User user) {
+        if (user.getName() == null) {
+            user.setName(user.getLogin());
         }
     }
 }
