@@ -14,9 +14,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
-
     private int userId = 1;
-
     private final Map<Integer, User> users = new HashMap<>();
 
     private int setUserId() {
@@ -38,11 +36,14 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         if (users.get(user.getId()) != null) {
+            if (user.getName() == null || user.getName().equals("")) {
+                user.setName(user.getLogin());
+            }
             users.put(user.getId(), user);
-            log.info("Обновлен фильм с Id: " + user.getId() + " и названием: " + user.getName());
+            log.info("Обновлен пользователь с Id: " + user.getId() + " и именем: " + user.getName());
             return user;
         } else {
-            throw new NotFoundException("Не найден user с id: " + user.getId());
+            throw new NotFoundException("Не найден пользователь с id: " + user.getId());
         }
     }
 
@@ -51,7 +52,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.get(id) != null) {
             users.remove(id);
         } else {
-            throw new NotFoundException("Не найден user с id: " + id);
+            throw new NotFoundException("Не найден пользователь с id: " + id);
         }
     }
 
@@ -65,7 +66,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.get(id) != null) {
             return users.get(id);
         } else {
-            throw new NotFoundException("Не найден user с id: " + id);
+            throw new NotFoundException("Не найден пользователь с id: " + id);
         }
     }
 
@@ -75,11 +76,11 @@ public class InMemoryUserStorage implements UserStorage {
             users.get(id).addFriend(friendId);
             users.get(friendId).addFriend(id);
         } else if (users.get(id) == null) {
-            throw new NotFoundException("Не найден user с id: " + id);
+            throw new NotFoundException("Не найден пользователь с id: " + id);
         } else if (users.get(friendId) == null) {
-            throw new NotFoundException("Не найден друг с id: " + id);
+            throw new NotFoundException("Не найден друг с id: " + friendId);
         } else {
-            throw new NotFoundException("Не найдены друг с id: " + id + ", и user с id: " + id);
+            throw new NotFoundException("Не найдены пользователь с id: " + id + " и друг с id: " + friendId);
         }
     }
 
@@ -89,25 +90,23 @@ public class InMemoryUserStorage implements UserStorage {
             users.get(id).deleteFriend(friendId);
             users.get(friendId).deleteFriend(id);
         } else if (users.get(id) == null) {
-            throw new NotFoundException("Не найден user с id: " + id);
+            throw new NotFoundException("Не найден пользователь с id: " + id);
         } else if (users.get(friendId) == null) {
-            throw new NotFoundException("Не найден друг с id: " + id);
+            throw new NotFoundException("Не найден друг с id: " + friendId);
         } else {
-            throw new NotFoundException("Не найдены друг с id: " + id + " и user с id: " + id);
+            throw new NotFoundException("Не найдены пользователь с id: " + id + " и друг с id: " + friendId);
         }
-
     }
 
     @Override
     public List<User> getFriends(int id) {
         User user = users.get(id);
-
         if (user != null) {
             return user.getFriends().stream()
                     .map(this::get)
                     .collect(Collectors.toList());
         } else {
-            throw new NotFoundException("Не найден user с id: " + id);
+            throw new NotFoundException("Не найден пользователь с id: " + id);
         }
     }
 
