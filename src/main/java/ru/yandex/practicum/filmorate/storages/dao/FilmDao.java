@@ -30,14 +30,11 @@ import java.util.List;
 public class FilmDao implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
     private final GenreStorage genreStorage;
-
 
     @Override
     public Film save(Film film) {
         String sql = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) VALUES (?,?,?,?,?)";
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update((PreparedStatementCreator) connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"FILM_ID"});
@@ -48,33 +45,24 @@ public class FilmDao implements FilmStorage {
             stmt.setLong(5, film.getMpa().getId());
             return stmt;
         }, keyHolder);
-
         film.setId(keyHolder.getKey().intValue());
         log.info("Добавлен фильм с Id: " + film.getId() + " и названием: " + film.getName());
-
         if (!film.getGenres().isEmpty()) {
             String sqlUpdate = "INSERT INTO FILMS_GENRES (FILM_ID, GENRE_ID) VALUES (?,?)";
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update(sqlUpdate, film.getId(), genre.getId());
             }
         }
-
         film.setGenres(genreStorage.getGenreByFilmId(film.getId()));
-        
-
         return film;
     }
 
     @Override
     public Film update(Film film) {
-
         get(film.getId());
-
         Integer ratingId = film.getMpa().getId();
-
         String sql = "UPDATE FILMS SET FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, RATING_ID = ? WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), ratingId, film.getId());
-
         String genreClearSQL = "DELETE FROM FILMS_GENRES WHERE FILM_ID = ?";
         if (film.getGenres().size() == 0) {
             jdbcTemplate.update(genreClearSQL, film.getId());
@@ -85,9 +73,7 @@ public class FilmDao implements FilmStorage {
                 jdbcTemplate.update(sqlUpdate, film.getId(), genre.getId());
             }
         }
-
         film.setGenres(genreStorage.getGenreByFilmId(film.getId()));
-
         log.info("Обновлен фильм с Id: " + film.getId() + " и названием: " + film.getName());
         return film;
     }
@@ -104,22 +90,18 @@ public class FilmDao implements FilmStorage {
     public List<Film> getAll() {
         String sql = "SELECT f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, r.RATING_NAME FROM FILMS f JOIN RATING r \n" +
                 "\tON f.RATING_ID  = r.RATING_ID ";
-
         try {
             return new ArrayList<>(jdbcTemplate.query(sql, this::mapRowToFilm));
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }
-
     }
 
     @Override
     public Film get(int id) {
-
         String sql = "SELECT f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, r.RATING_NAME FROM FILMS f JOIN RATING r \n" +
                 "\tON f.RATING_ID  = r.RATING_ID " +
                 "WHERE f.FILM_ID = ?";
-
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
         } catch (EmptyResultDataAccessException e) {
@@ -135,23 +117,18 @@ public class FilmDao implements FilmStorage {
 
     @Override
     public void deleteLike(int filmId, int userId) {
-
         UserDao userDBStorage = new UserDao(jdbcTemplate);
-
         try {
             userDBStorage.get(userId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Не был найден юзер с userId = " + userId);
         }
-
         String sql = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
         jdbcTemplate.update(sql, filmId, userId);
     }
 
     @Override
     public List<Film> getFilmsByCount(int count) {
-
-
         String sql = "SELECT DISTINCT f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, r.RATING_NAME , COALESCE (fg.LIKES,0) AS LIKES\n" +
                 "FROM FILMS f\n" +
                 "LEFT JOIN RATING r ON f.RATING_ID  = r.RATING_ID\n" +
@@ -159,8 +136,6 @@ public class FilmDao implements FilmStorage {
                 "LEFT JOIN (SELECT FILM_ID AS fid, count(LIKE_ID) AS LIKES FROM LIKES \n" +
                 "GROUP BY FILM_ID) fg ON f.FILM_ID  = fg.fid\n" +
                 "ORDER BY LIKES DESC LIMIT " + count;
-
-
         return new ArrayList<>(jdbcTemplate.query(sql, this::mapRowToFilm));
     }
 
@@ -173,10 +148,7 @@ public class FilmDao implements FilmStorage {
                 .duration(rs.getLong("DURATION"))
                 .mpa(new Rating(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")))
                 .build();
-
         film.setGenres(genreStorage.getGenreByFilmId(rs.getInt("FILM_ID")));
-
         return film;
     }
-
 }
