@@ -16,9 +16,9 @@ public interface FilmStorage {
 
     Film get(int id);
 
-    void putLike(int fId, int uId);
+    void addLike(int filmId, int userId);
 
-    void deleteLike(int fId, int uId);
+    void deleteLike(int filmId, int userId);
 
     List<Film> getFilmsByCount(int count);
 

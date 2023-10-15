@@ -33,7 +33,7 @@ public class FilmService {
     }
 
     public void putLike(int filmId, int userId) {
-        filmStorage.putLike(filmId, userId);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(int filmId, int userId) {
