@@ -5,11 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,18 +33,25 @@ public class UserDao implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Integer setIdReturn() {
-        return id++;
-    }
-
     @Override
     public User save(User user) {
-        if (user.getName() == null || user.getName().equals("")) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        user.setId(setIdReturn());
+
         String sql = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?,?,?,?)";
-        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"USER_ID"});
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getLogin());
+            stmt.setString(3, user.getName());
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
+            return stmt;
+        }, keyHolder);
+
+        user.setId(keyHolder.getKey().intValue());
         log.info("Добавлен пользователь с Id: " + user.getId() + " и именем: " + user.getName());
         return user;
     }
@@ -105,14 +116,14 @@ public class UserDao implements UserStorage {
         User friend = get(friendId);
 
         if (user.getId() != null && friend.getId() != null) {
-            String sql = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS) VALUES (?,?,?)";
-            jdbcTemplate.update(sql, user.getId(), friend.getId(), "true");
+            String sql = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?,?)";
+            jdbcTemplate.update(sql, user.getId(), friend.getId());
         } else if (user.getId() == null) {
             throw new NotFoundException("Не найден юзер с id: " + id);
         } else if (friend.getId() == null) {
-            throw new NotFoundException("Не найден друг с id: " + id);
+            throw new NotFoundException("Не найден друг с id: " + friendId);
         } else {
-            throw new NotFoundException("Не найдены ни друг с id: " + id + ", ни юзер с id: " + id);
+            throw new NotFoundException("Не найдены ни друг с id: " + friendId + ", ни юзер с id: " + id);
         }
     }
 
@@ -144,9 +155,9 @@ public class UserDao implements UserStorage {
     public List<User> getCommonFriends(int id, int otherId) {
 
         String sql = "SELECT u.* FROM USERS u \n" +
-                "\t\tJOIN FRIENDS f ON u.USER_ID = f.FRIEND_ID\n" +
-                "\t\tJOIN FRIENDS f2 ON u.USER_ID = f2.FRIEND_ID \n" +
-                "\t\t\tWHERE f.USER_ID = ? AND f2.USER_ID = ?";
+                "JOIN FRIENDS f ON u.USER_ID = f.FRIEND_ID\n" +
+                "JOIN FRIENDS f2 ON u.USER_ID = f2.FRIEND_ID \n" +
+                "WHERE f.USER_ID = ? AND f2.USER_ID = ?";
 
         return new ArrayList<>(jdbcTemplate.query(sql, this::mapRowToUser, id, otherId));
     }

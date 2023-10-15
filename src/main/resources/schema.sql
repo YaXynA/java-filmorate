@@ -1,8 +1,8 @@
  drop table if exists users cascade;
  create table users (
  user_id int primary key auto_increment,
- email varchar(100),
- login varchar(100),
+ email varchar(100) not null unique,
+ login varchar(100) not null unique,
  user_name varchar(100),
  birthday date
 );
@@ -11,14 +11,13 @@
  create table friends (
  friends_id int primary key auto_increment,
  user_id int REFERENCES users (user_id) ON DELETE CASCADE,
- friend_id int REFERENCES users (user_id) ON DELETE CASCADE,
- status boolean
+ friend_id int REFERENCES users (user_id) ON DELETE CASCADE
 );
 
 drop table if exists rating cascade;
  create table rating (
  rating_id int primary key auto_increment,
- rating_name varchar(50)
+ rating_name varchar(50) not null
 );
 
  drop table if exists films cascade;
@@ -41,7 +40,7 @@ drop table if exists rating cascade;
 drop table if exists genres cascade;
  create table genres (
  genre_id int primary key auto_increment,
- genre_name varchar(50)
+ genre_name varchar(50) not null
 );
 
 

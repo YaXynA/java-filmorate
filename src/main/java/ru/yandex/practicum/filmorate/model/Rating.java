@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
@@ -12,7 +12,7 @@ public class Rating {
 
     private Integer id;
 
-    @NotNull
+    @NotBlank
     private String name;
 
 }
