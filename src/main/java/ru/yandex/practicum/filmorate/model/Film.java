@@ -38,7 +38,8 @@ public class Film {
     private Rating mpa;
 
     private final Set<Integer> likes = new HashSet<>();
-    private Set<Genre> genres = new HashSet<>();
+
+    private final Set<Genre> genres = new HashSet<>();
 
     public void addLike(int id) {
         likes.add(id);
@@ -52,4 +53,8 @@ public class Film {
         return likes.size();
     }
 
+    public void setGenres(Set<Genre> genreByFilmId) {
+        this.genres.clear();
+        this.genres.addAll(genreByFilmId);
+    }
 }

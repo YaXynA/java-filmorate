@@ -24,8 +24,6 @@ import java.util.List;
 @Primary
 public class UserDao implements UserStorage {
 
-    int id = 1;
-
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -76,14 +74,9 @@ public class UserDao implements UserStorage {
     @Override
     public void deleteById(int id) {
         User user = get(id);
-
-        if (user.getId() != null) {
-            String sql = "DELETE FROM USERS WHERE USER_ID = ?";
-            jdbcTemplate.update(sql, id);
-            log.info("Удален юзер с Id: " + user.getId());
-        } else {
-            throw new NotFoundException("Не найден юзер с id: " + id);
-        }
+        String sql = "DELETE FROM USERS WHERE USER_ID = ?";
+        jdbcTemplate.update(sql, id);
+        log.info("Удален юзер с Id: " + user.getId());
     }
 
     @Override

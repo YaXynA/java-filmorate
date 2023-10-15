@@ -29,7 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmDao implements FilmStorage {
 
-    int id = 1;
     private final JdbcTemplate jdbcTemplate;
 
     private final GenreStorage genreStorage;
@@ -61,6 +60,7 @@ public class FilmDao implements FilmStorage {
         }
 
         film.setGenres(genreStorage.getGenreByFilmId(film.getId()));
+        
 
         return film;
     }
@@ -94,15 +94,10 @@ public class FilmDao implements FilmStorage {
 
     @Override
     public void deleteById(int id) {
-
         Film film = get(id);
-        if (film.getId() != 0) {
-            String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
-            jdbcTemplate.update(sql, id);
-            log.info("Удален фильм с Id: " + film.getId());
-        } else {
-            throw new NotFoundException("Не найден фильм с id: " + id);
-        }
+        String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, id);
+        log.info("Удален фильм с Id: " + film.getId());
     }
 
     @Override
@@ -146,7 +141,7 @@ public class FilmDao implements FilmStorage {
         try {
             userDBStorage.get(userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Не был найден юзер с Id = " + id);
+            throw new NotFoundException("Не был найден юзер с userId = " + userId);
         }
 
         String sql = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
@@ -170,17 +165,18 @@ public class FilmDao implements FilmStorage {
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
-        return Film
-                .builder()
+        Film film = Film.builder()
                 .id(rs.getInt("FILM_ID"))
                 .name(rs.getString("FILM_NAME"))
                 .description(rs.getString("DESCRIPTION"))
                 .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                 .duration(rs.getLong("DURATION"))
                 .mpa(new Rating(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")))
-                .genres(genreStorage.getGenreByFilmId(rs.getInt("FILM_ID")))
                 .build();
-    }
 
+        film.setGenres(genreStorage.getGenreByFilmId(rs.getInt("FILM_ID")));
+
+        return film;
+    }
 
 }
