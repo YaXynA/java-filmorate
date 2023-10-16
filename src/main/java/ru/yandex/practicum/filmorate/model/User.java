@@ -5,8 +5,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,7 +14,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 public class User {
 

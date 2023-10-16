@@ -1,20 +1,22 @@
 package ru.yandex.practicum.filmorate.model;
 
-        import javax.validation.constraints.Min;
-        import javax.validation.constraints.NotBlank;
-        import javax.validation.constraints.Size;
-        import lombok.Data;
-        import lombok.ToString;
-        import lombok.experimental.Accessors;
-        import org.springframework.format.annotation.DateTimeFormat;
-        import ru.yandex.practicum.filmorate.validator.ReleaseDate;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
-        import java.time.LocalDate;
-        import java.util.HashSet;
-        import java.util.Set;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+import ru.yandex.practicum.filmorate.validator.ReleaseDate;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 public class Film {
 
@@ -33,7 +35,11 @@ public class Film {
     @Min(value = 0, message = "Продолжительность фильма должна быть положительной!")
     private Long duration;
 
+    private Rating mpa;
+
     private final Set<Integer> likes = new HashSet<>();
+
+    private final Set<Genre> genres = new HashSet<>();
 
     public void addLike(int id) {
         likes.add(id);
@@ -45,5 +51,10 @@ public class Film {
 
     public int getLikesCount() {
         return likes.size();
+    }
+
+    public void setGenres(Set<Genre> genreByFilmId) {
+        this.genres.clear();
+        this.genres.addAll(genreByFilmId);
     }
 }
