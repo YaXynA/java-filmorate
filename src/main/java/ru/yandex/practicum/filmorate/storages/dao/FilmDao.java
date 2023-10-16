@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -33,10 +32,10 @@ public class FilmDao implements FilmStorage {
     private final GenreStorage genreStorage;
 
     @Override
-    public Film save(Film film) {
+    public Film save(Film film) { // убрал PreparedStatementCreator
         String sql = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) VALUES (?,?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update((PreparedStatementCreator) connection -> {
+        jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"FILM_ID"});
             stmt.setString(1, film.getName());
             stmt.setString(2, film.getDescription());
@@ -118,11 +117,7 @@ public class FilmDao implements FilmStorage {
     @Override
     public void deleteLike(int filmId, int userId) {
         UserDao userDBStorage = new UserDao(jdbcTemplate);
-        try {
-            userDBStorage.get(userId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Не был найден юзер с userId = " + userId);
-        }
+        userDBStorage.get(userId); // убрал catch
         String sql = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
         jdbcTemplate.update(sql, filmId, userId);
     }

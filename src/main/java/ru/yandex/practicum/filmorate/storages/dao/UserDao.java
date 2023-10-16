@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.dao;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -21,15 +22,11 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 @Primary
-public class UserDao implements UserStorage {
+public class UserDao implements UserStorage { // убрал конструктор
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public UserDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public User save(User user) {
@@ -57,18 +54,12 @@ public class UserDao implements UserStorage {
     @Override
     public User update(User user) {
 
-        try {
-            get(user.getId());
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Не был найден юзер с Id = " + user.getId());
-        }
-
+        get(user.getId()); //удалил catch
         String sqlUpdate = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTHDAY = ? WHERE USER_ID = ?";
         jdbcTemplate.update(sqlUpdate, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
         log.info("Обновлен пользователь с Id: " + user.getId() + " и названием: " + user.getName());
 
         return user;
-
     }
 
     @Override
@@ -103,43 +94,23 @@ public class UserDao implements UserStorage {
     }
 
     @Override
-    public void addFriend(int id, int friendId) {
-
+    public void addFriend(int id, int friendId) { //удалил проверки
         User user = get(id);
         User friend = get(friendId);
-
-        if (user.getId() != null && friend.getId() != null) {
-            String sql = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?,?)";
-            jdbcTemplate.update(sql, user.getId(), friend.getId());
-        } else if (user.getId() == null) {
-            throw new NotFoundException("Не найден юзер с id: " + id);
-        } else if (friend.getId() == null) {
-            throw new NotFoundException("Не найден друг с id: " + friendId);
-        } else {
-            throw new NotFoundException("Не найдены ни друг с id: " + friendId + ", ни юзер с id: " + id);
-        }
+        String sql = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?,?)";
+        jdbcTemplate.update(sql, user.getId(), friend.getId());
     }
 
     @Override
-    public void deleteFriend(int id, int friendId) {
+    public void deleteFriend(int id, int friendId) { //удалил проверки
         User user = get(id);
         User friend = get(friendId);
-
-        if (user.getId() != null && friend.getId() != null) {
-            String sql = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?";
-            jdbcTemplate.update(sql, user.getId(), friend.getId());
-        } else if (user.getId() == null) {
-            throw new NotFoundException("Не найден юзер с id: " + id);
-        } else if (friend.getId() == null) {
-            throw new NotFoundException("Не найден друг с id: " + id);
-        } else {
-            throw new NotFoundException("Не найдены ни друг с id: " + id + ", ни юзер с id: " + id);
-        }
+        String sql = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?";
+        jdbcTemplate.update(sql, user.getId(), friend.getId());
     }
 
     @Override
     public List<User> getFriends(int id) {
-
         String sql = "SELECT u.* FROM USERS u JOIN FRIENDS f ON u.USER_ID = f.FRIEND_ID WHERE f.USER_ID = ?";
         return new ArrayList<>(jdbcTemplate.query(sql, this::mapRowToUser, id));
     }

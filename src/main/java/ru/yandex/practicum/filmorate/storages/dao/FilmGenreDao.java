@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.dao;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -16,13 +17,10 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class FilmGenreDao implements FilmGenreStorage {
+@RequiredArgsConstructor
+public class FilmGenreDao implements FilmGenreStorage { //убрал конструктор
 
     private final JdbcTemplate jdbcTemplate;
-
-    public FilmGenreDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public void addGenreForFilm(int filmId, int genreId) {
@@ -51,14 +49,5 @@ public class FilmGenreDao implements FilmGenreStorage {
 
         return filmGenres;
     }
-
-    private FilmGenre mapRowToFilmGenre(ResultSet rs, int rowNum) throws SQLException {
-        return FilmGenre
-                .builder()
-                .filmGenreId(rs.getInt("FILM_GENRE_ID"))
-                .filmId(rs.getInt("FILM_ID"))
-                .genreId(rs.getInt("GENRE_ID"))
-                .build();
-    }
-
+    // тут удалил метод
 }

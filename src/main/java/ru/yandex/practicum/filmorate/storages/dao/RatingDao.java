@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.dao;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -15,15 +16,10 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class RatingDao implements RatingStorage {
+@RequiredArgsConstructor
+public class RatingDao implements RatingStorage {  //убрал конструтор
 
     private final JdbcTemplate jdbcTemplate;
-
-
-    public RatingDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
 
     @Override
     public Rating getRatingById(Integer id) {
