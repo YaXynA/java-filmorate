@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.storages.FilmGenreStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
